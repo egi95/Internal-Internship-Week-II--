@@ -1,0 +1,21 @@
+double mesatarja(List<double> nota) {
+  if (nota.isEmpty) {
+    return 0.0;
+  }
+  double shuma = 0.0;
+  for (double n in nota) {
+    shuma += n;
+  }
+  double rezultat = shuma / nota.length;
+  return rezultat;
+}
+
+void main() {
+  List<double> lista1 = [7, 8.5, 10, 6];
+  List<double> lista2 = [];
+  List<double> lista3 = [9.5, 8.25, 7.75];
+
+  print("Mesatarja e listës 1: ${mesatarja(lista1).toStringAsFixed(2)}");
+  print("Mesatarja e listës 2: ${mesatarja(lista2).toStringAsFixed(2)}");
+  print("Mesatarja e listës 3: ${mesatarja(lista3).toStringAsFixed(2)}");
+}
