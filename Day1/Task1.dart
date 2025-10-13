@@ -1,3 +1,5 @@
+Task 1 
+  
 import 'dart:io';
 
 double mesatarja(List<double> nota) {
