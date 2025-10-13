@@ -2,11 +2,14 @@ name: Auto-Wipe Main Branch on Push
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+
+permissions:
+  contents: write
 
 jobs:
   wipe:
+    if: ${{ github.actor != 'github-actions[bot]' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -14,9 +17,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: true
 
-      - name: Auto-delete all files and folders except workflow
+      - name: Auto-delete all files and folders except .github/workflows
+        shell: bash
         run: |
+          set -euo pipefail
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
@@ -26,28 +32,23 @@ jobs:
             cp -r .github/workflows _temp_workflow_backup/
           fi
 
-          echo "🧹 Deleting everything in main branch except .git and .github/workflows..."
-          shopt -s dotglob  # include hidden files/folders
+          echo "🧹 Deleting everything except .git and .github"
+          shopt -s dotglob
           for item in * .*; do
-            if [[ "$item" != ".git" && "$item" != "." && "$item" != ".." && "$item" != ".github" && "$item" != "_temp_workflow_backup" ]]; then
-              rm -rf "$item"
-            fi
+            case "$item" in
+              "."|".."|".git"|".github"|"_temp_workflow_backup") continue ;;
+              *) rm -rf -- "$item" ;;
+            esac
           done
 
           echo "♻️ Restoring workflow if backup exists..."
           if [ -d "_temp_workflow_backup/workflows" ]; then
-            echo "🗑️ Removing existing .github/workflows to restore backup..."
-            rm -rf .github/workflows
+            rm -rf .github/workflows || true
             mkdir -p .github
             mv _temp_workflow_backup/workflows .github/
           fi
-
-          echo "🧹 Cleaning up backup..."
           rm -rf _temp_workflow_backup
 
-          echo "📝 Writing placeholder file..."
-          echo "# Repo wiped by GitHub Action on $(date)" > README.md
-
-          git add .
-          git commit -m "Auto-wipe: deleted all files and folders except workflow"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main --force
+          git add -A
+          git commit -m "Auto-wipe: delete all files except workflow [skip ci]" || echo "Nothing to commit"
+          git push origin HEAD:main --force
