@@ -1,1 +1,23 @@
+import 'dart:io';
+
+double mesatarja(List<double> nota) {
+  if (nota.isEmpty) return 0.0;
+  double shuma = 0;
+  for (var n in nota) {
+    shuma += n;
+  }
+  return shuma / nota.length;
+}
+
+void main() {
+  stdout.write('Shkruani notat e ndara me hapësirë: ');
+  List<double> nota = stdin.readLineSync()!
+      .split(' ')
+      .where((e) => e.isNotEmpty)
+      .map(double.parse)
+      .toList();
+
+  double rezultat = mesatarja(nota);
+  print('Mesatarja është: ${rezultat.toStringAsFixed(2)}');
+}
 
