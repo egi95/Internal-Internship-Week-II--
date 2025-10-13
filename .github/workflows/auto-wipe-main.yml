@@ -1,0 +1,53 @@
+name: Auto-Wipe Main Branch on Push
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  wipe:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Auto-delete all files and folders except workflow
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          echo "🚨 Backing up .github/workflows if it exists..."
+          if [ -d ".github/workflows" ]; then
+            mkdir -p _temp_workflow_backup
+            cp -r .github/workflows _temp_workflow_backup/
+          fi
+
+          echo "🧹 Deleting everything in main branch except .git and .github/workflows..."
+          shopt -s dotglob  # include hidden files/folders
+          for item in * .*; do
+            if [[ "$item" != ".git" && "$item" != "." && "$item" != ".." && "$item" != ".github" && "$item" != "_temp_workflow_backup" ]]; then
+              rm -rf "$item"
+            fi
+          done
+
+          echo "♻️ Restoring workflow if backup exists..."
+          if [ -d "_temp_workflow_backup/workflows" ]; then
+            echo "🗑️ Removing existing .github/workflows to restore backup..."
+            rm -rf .github/workflows
+            mkdir -p .github
+            mv _temp_workflow_backup/workflows .github/
+          fi
+
+          echo "🧹 Cleaning up backup..."
+          rm -rf _temp_workflow_backup
+
+          echo "📝 Writing placeholder file..."
+          echo "# Repo wiped by GitHub Action on $(date)" > README.md
+
+          git add .
+          git commit -m "Auto-wipe: deleted all files and folders except workflow"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main --force
