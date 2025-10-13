@@ -32,8 +32,8 @@ void main() {
 }
 
 
-Shpjegim i shkurtër
-Funksioni mesatarja() pranon një listë me vlera double.
-Nëse lista është bosh → kthen 0.0.
-Nëse ka nota, përdor një cikël for për të llogaritur shumën totale dhe e ndan me gjatësinë e listës.
-toStringAsFixed(2) siguron që rezultati të shfaqet me dy shifra pas presjes.
+//Shpjegim i shkurtër
+//Funksioni mesatarja() pranon një listë me vlera double.
+//Nëse lista është bosh → kthen 0.0.
+//Nëse ka nota, përdor një cikël for për të llogaritur shumën totale dhe e ndan me gjatësinë e listës.
+//toStringAsFixed(2) siguron që rezultati të shfaqet me dy shifra pas presjes.
