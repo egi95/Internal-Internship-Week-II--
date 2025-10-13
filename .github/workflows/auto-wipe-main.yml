@@ -50,5 +50,5 @@ jobs:
           rm -rf _temp_workflow_backup
 
           git add -A
-          git commit -m "Auto-wipe: delete all files except workflow [skip ci]" || echo "Nothing to commit"
+          git commit -m "Auto-wipe: ndryshimet tuaja jane fshire per shkak se nuk lejohet te shtohet ndonje file/folder ne main branch" || echo "Nothing to commit"
           git push origin HEAD:main --force
