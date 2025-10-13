@@ -1,5 +1,4 @@
 void main() {
-  // Testime shembull
   List<int> lista1 = [1, 2, 3, 4, 5, 6];
   List<int> lista2 = [];
   List<int> lista3 = [2, 4, 6, 8];
@@ -11,7 +10,6 @@ void main() {
   print(ndaj(lista4));
 }
 
-/// Funksioni që ndan listën në dy lista: 'cift' dhe 'tek'.
 Map<String, List<int>> ndaj(List<int> nums) {
   List<int> cift = [];
   List<int> tek = [];
