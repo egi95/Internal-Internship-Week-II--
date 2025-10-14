@@ -1,6 +1,5 @@
 // task1.dart
-// Autori: Noela Plakiqi
-// Përshkrimi: Program që llogarit mesataren e notave në Dart
+
 
 // Funksioni që llogarit mesataren
 double mesatarja(List<double> nota) {
