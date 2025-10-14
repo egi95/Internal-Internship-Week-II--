@@ -12,7 +12,6 @@ class Student {
 }
 
 void main() {
-  // Lista e studentëve
   List<Student> studentet = [
     Student("Ana", [8, 9, 10]),
     Student("Ardit", [6, 7, 8]),
