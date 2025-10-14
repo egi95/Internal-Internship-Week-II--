@@ -40,3 +40,43 @@ void main() {
  
   print("Top: ${topStudent.emri} - ${topStudent.mesatarja().toStringAsFixed(2)}");
 }
+
+
+Task 2 
+  class Product {
+  int id;
+  String name;
+  double price;
+
+  Product(this.id, this.name, this.price);
+}
+
+void main() {
+  List<Product> store = [];
+
+  void addProduct(Product p) => store.add(p);
+
+  bool removeById(int id) {
+    return store.removeWhere((p) => p.id == id) > 0;
+  }
+
+  List<Product> inPriceRange(double min, double max) {
+    return store.where((p) => p.price >= min && p.price <= max).toList();
+  }
+
+ 
+  addProduct(Product(1, "Book", 12.5));
+  addProduct(Product(2, "Pen", 2.0));
+  addProduct(Product(3, "Bag", 22.0));
+  addProduct(Product(4, "Lamp", 35.0));
+
+  
+  removeById(2);
+
+  var result = inPriceRange(10.0, 25.0);
+
+  
+  for (var p in result) {
+    print("#${p.id} ${p.name} - ${p.price.toStringAsFixed(2)}");
+  }
+}
