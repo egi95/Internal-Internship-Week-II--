@@ -1,0 +1,79 @@
+class Product {
+  int id;
+  String name;
+  double price;
+  
+  Product(this.id, this.name, this.price);
+  
+  @override
+  String toString() {
+    return '#$id $name - ${price.toStringAsFixed(2)}';
+  }
+}
+
+class Store {
+  List<Product> store = [];
+  
+  // Shton një produkt në dyqan
+  void addProduct(Product p) {
+    store.add(p);
+  }
+  
+  // Fshin produktin me id e dhënë, kthen true nëse u fshi
+  bool removeById(int id) {
+    int initialLength = store.length;
+    store.removeWhere((product) => product.id == id);
+    return store.length < initialLength;
+  }
+  
+  // Kthen produktet brenda intervalit të çmimeve
+  List<Product> inPriceRange(double min, double max) {
+    return store.where((product) => product.price >= min && product.price <= max).toList();
+  }
+}
+
+void main() {
+  // Krijojmë dyqanin
+  Store dyqani = Store();
+  
+  // Shtojmë 4 produkte
+  dyqani.addProduct(Product(1, 'Laptopi', 599.99));
+  dyqani.addProduct(Product(2, 'Mouse', 15.50));
+  dyqani.addProduct(Product(3, 'Tastiera', 25.75));
+  dyqani.addProduct(Product(4, 'Monitor', 199.99));
+  
+  print('Produktet pas shtimit:');
+  for (Product p in dyqani.store) {
+    print(p);
+  }
+  
+  // Fshijmë produktin me id=2
+  bool uFshi = dyqani.removeById(2);
+  print('\nU fshi produkti me id=2: $uFshi');
+  
+  // Marrim produktet në rangun 10.0-25.0
+  List<Product> neRangu = dyqani.inPriceRange(10.0, 25.0);
+  
+  print('\nProduktet në rangun 10.0-25.0:');
+  if (neRangu.isEmpty) {
+    print('Nuk ka produkte në këtë rang çmimesh');
+  } else {
+    for (Product p in neRangu) {
+      print(p);
+    }
+  }
+  
+  // Testojmë fshirjen e një produkti që nuk ekziston
+  print('\nTestimi i fshirjes së produktit me id=10 (që nuk ekziston):');
+  bool uFshi2 = dyqani.removeById(10);
+  print('U fshi produkti me id=10: $uFshi2');
+  
+  // Shtojmë një produkt tjetër për të testuar rangun
+  dyqani.addProduct(Product(5, 'Kufje', 22.99));
+  
+  print('\nPas shtimit të kufjeve:');
+  List<Product> neRangu2 = dyqani.inPriceRange(10.0, 25.0);
+  for (Product p in neRangu2) {
+    print(p);
+  }
+}
