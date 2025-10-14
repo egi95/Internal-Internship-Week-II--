@@ -1,0 +1,25 @@
+// task2.dart
+
+Map<String, List<int>> ndaj(List<int> nums) {
+  List<int> cift = [];
+  List<int> tek = [];
+
+  for (var n in nums) {
+    if (n % 2 == 0) {
+      cift.add(n); // Numrat çift
+    } else {
+      tek.add(n); // Numrat tek
+    }
+  }
+
+  return {'cift': cift, 'tek': tek};
+}
+
+void main() {
+  List<int> lista = [1, 2, 3, 4, 5, 6]; // Shembull inputi
+
+  Map<String, List<int>> rezultat = ndaj(lista);
+
+  print('Cift: ${rezultat['cift']}'); // Output: [2, 4, 6]
+  print('Tek: ${rezultat['tek']}');   // Output: [1, 3, 5]
+}
