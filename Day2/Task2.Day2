@@ -1,0 +1,60 @@
+class Product {
+  int id;
+  String name;
+  double price;
+
+  Product(this.id, this.name, this.price);
+}
+
+class Store {
+  List<Product> store = [];
+
+  // Shton një produkt në listë
+  void addProduct(Product p) {
+    store.add(p);
+  }
+
+  // Fshin një produkt sipas ID-së
+  bool removeById(int id) {
+    return store.removeWhere((p) => p.id == id) > 0;
+  }
+
+  // Kthen produktet brenda një intervali çmimesh
+  List<Product> inPriceRange(double min, double max) {
+    return store.where((p) => p.price >= min && p.price <= max).toList();
+  }
+
+  // Printon të gjitha produktet
+  void printProducts(List<Product> products) {
+    for (var p in products) {
+      print("#${p.id} ${p.name} - ${p.price.toStringAsFixed(2)}");
+    }
+  }
+}
+
+void main() {
+  Store myStore = Store();
+
+  // Shto disa produkte
+  myStore.addProduct(Product(1, "Shampo", 12.50));
+  myStore.addProduct(Product(2, "Sapun", 5.00));
+  myStore.addProduct(Product(3, "Krem", 22.99));
+  myStore.addProduct(Product(4, "Deodorant", 18.30));
+
+  // Fshi produktin me id = 2
+  bool removed = myStore.removeById(2);
+  print(removed ? "Produkti me ID 2 u fshi me sukses.\n" : "Produkti nuk u gjet.\n");
+
+  // Gjej dhe printo produktet në intervalin e çmimit 10.0 – 25.0
+  print("Produktet me çmim 10.0 – 25.0:");
+  List<Product> filtered = myStore.inPriceRange(10.0, 25.0);
+  myStore.printProducts(filtered);
+}
+
+Output
+  Produkti me ID 2 u fshi me sukses.
+
+Produktet me çmim 10.0 – 25.0:
+#1 Shampo - 12.50
+#3 Krem - 22.99
+#4 Deodorant - 18.30
