@@ -1,0 +1,30 @@
+class Product {
+  int id;
+  String name;
+  double price;
+
+  Product(this.id, this.name, this.price);
+}
+
+class Store {
+  List<Product> store = [];
+
+  void addProduct(Product p) {
+    store.add(p);
+  }
+
+  bool removeById(int id) {
+    return store.removeWhere((product) => product.id == id) > 0;
+  }
+
+  List<Product> inPriceRange(double min, double max) {
+    return store.where((product) => product.price >= min && product.price <= max).toList();
+  }
+}
+
+void main() {
+  Store myStore = Store();
+
+  myStore.addProduct(Product(1, "Apple", 10.5));
+  myStore.addProduct(Product(2, "Banana", 5.0));
+  myStore.addProduct(Product
