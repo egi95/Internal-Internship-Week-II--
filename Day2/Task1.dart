@@ -1,18 +1,34 @@
-// task1.dart
+class Student {
+  String emri;
+  List<double> nota;
 
-double mesatarja(List<double> nota) {
-  if (nota.isEmpty) {
-    return 0.0;
+  Student(this.emri, this.nota);
+
+  double mesatarja() {
+    if (nota.isEmpty) {
+      return 0.0;
+    }
+    double total = 0;
+    for (double n in nota) {
+      total += n;
+    }
+    return total / nota.length;
   }
-  double shuma = 0;
-  for (double n in nota) {
-    shuma += n;
-  }
-  return shuma / nota.length;
 }
 
 void main() {
-  List<double> nota = [7, 8.5, 10, 6];
-  double rezultat = mesatarja(nota);
-  print("Mesatarja: ${rezultat.toStringAsFixed(2)}");
+  List<Student> studentet = [
+    Student("Mikeli", [8, 9, 10]),
+    Student("Ylli", [6, 7, 8]),
+    Student("Aroni", []),
+  ];
+
+  Student topStudent = studentet[0];
+  for (Student s in studentet) {
+    if (s.mesatarja() > topStudent.mesatarja()) {
+      topStudent = s;
+    }
+  }
+
+  print("Top: ${topStudent.emri} - ${topStudent.mesatarja().toStringAsFixed(2)}");
 }
