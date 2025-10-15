@@ -1,0 +1,98 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MaterialApp(
+    home: ItemListScreen(),
+    debugShowCheckedModeBanner: false,
+  ));
+}
+
+class ItemListScreen extends StatefulWidget {
+  @override
+  _ItemListScreenState createState() => _ItemListScreenState();
+}
+
+class _ItemListScreenState extends State<ItemListScreen> {
+  final TextEditingController _controller = TextEditingController();
+  final List<String> _items = [];
+
+  void _addItem() {
+    final text = _controller.text.trim();
+    if (text.isNotEmpty) {
+      setState(() {
+        _items.add(text);
+      });
+      _controller.clear();
+    }
+  }
+
+  void _deleteItem(int index) {
+    final deletedItem = _items[index];
+    setState(() {
+      _items.removeAt(index);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('U fshi: $deletedItem'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Lista e Artikujve'),
+        backgroundColor: Colors.teal,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            // TextField + Button për shtim
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      labelText: 'Shto artikull',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: _addItem,
+                  child: Text('Shto'),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            // ListView për shfaqje të artikujve
+            Expanded(
+              child: _items.isEmpty
+                  ? Center(child: Text('Lista është bosh.'))
+                  : ListView.builder(
+                      itemCount: _items.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          child: ListTile(
+                            title: Text(_items[index]),
+                            trailing: IconButton(
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deleteItem(index),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
