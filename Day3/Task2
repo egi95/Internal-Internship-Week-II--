@@ -1,0 +1,107 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Day3 Task2',
+      home: Task2HomePage(),
+    );
+  }
+}
+
+class Task2HomePage extends StatefulWidget {
+  @override
+  _Task2HomePageState createState() => _Task2HomePageState();
+}
+
+class _Task2HomePageState extends State<Task2HomePage> {
+  List<String> items = []; // Lista e artikujve
+  TextEditingController controller = TextEditingController();
+
+  void _addItem() {
+    String text = controller.text.trim();
+    if (text.isEmpty) return;
+
+    setState(() {
+      items.add(text);
+      controller.clear();
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Artikulli u shtua: $text"),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _deleteItem(int index) {
+    String removedItem = items[index];
+
+    setState(() {
+      items.removeAt(index);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Artikulli u fshi: $removedItem"),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Task 2 – Listë me shtim dhe fshirje'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: controller,
+                    decoration: InputDecoration(
+                      labelText: 'Shto artikull',
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: _addItem,
+                  child: Text('Shto'),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            Expanded(
+              child: items.isEmpty
+                  ? Center(child: Text("Lista është bosh"))
+                  : ListView.builder(
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text(items[index]),
+                          trailing: IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _deleteItem(index),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
