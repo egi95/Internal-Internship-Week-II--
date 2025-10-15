@@ -1,0 +1,111 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Lista e Artikujve',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: ItemListScreen(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class ItemListScreen extends StatefulWidget {
+  @override
+  _ItemListScreenState createState() => _ItemListScreenState();
+}
+
+class _ItemListScreenState extends State<ItemListScreen> {
+  final TextEditingController _controller = TextEditingController();
+  final List<String> _items = [];
+
+  void _addItem() {
+    String text = _controller.text.trim();
+    if (text.isNotEmpty) {
+      setState(() {
+        _items.add(text);
+        _controller.clear();
+      });
+    }
+  }
+
+  void _removeItem(int index) {
+    String removed = _items[index];
+    setState(() {
+      _items.removeAt(index);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('U fshi: $removed'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Lista me shtim & fshirje'),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // Fusha e inputit dhe butoni për shtim
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      labelText: 'Shto artikull...',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _addItem,
+                  child: Text('Shto'),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+
+            // Lista e artikujve
+            Expanded(
+              child: _items.isEmpty
+                  ? Center(child: Text('Lista është bosh'))
+                  : ListView.builder(
+                      itemCount: _items.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          child: ListTile(
+                            title: Text(_items[index]),
+                            trailing: IconButton(
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _removeItem(index),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Output 
+U fshi: Qumësht
