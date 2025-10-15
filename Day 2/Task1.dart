@@ -1,71 +1,35 @@
-import 'package:flutter/material.dart';
+class Student {
+  String emri;
+  List<double> nota;
+
+  // Konstruktor
+  Student(this.emri, this.nota);
+
+  // Metodë për të llogaritur mesataren
+  double mesatarja() {
+    if (nota.isEmpty) return 0.0;
+    double total = nota.reduce((a, b) => a + b);
+    return total / nota.length;
+  }
+}
 
 void main() {
-  runApp(MyApp());
-}
+  // Krijojmë disa studentë
+  List<Student> studentet = [
+    Student("Ana", [8, 9, 10]),
+    Student("Ardit", [6, 7, 8]),
+    Student("Lira", []), // lista bosh
+  ];
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Ndërrues Teksti',
-      home: TextChangerPage(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
+  // Gjejmë studentin me mesataren më të lartë
+  Student topStudent = studentet[0];
 
-class TextChangerPage extends StatefulWidget {
-  @override
-  _TextChangerPageState createState() => _TextChangerPageState();
-}
-
-class _TextChangerPageState extends State<TextChangerPage> {
-  String _teksti = "Përshëndetje";
-
-  void _ndryshoTekstin() {
-    setState(() {
-      _teksti = _teksti == "Përshëndetje" ? "U përditësua!" : "Përshëndetje";
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Teksti u ndryshua!'),
-        duration: Duration(seconds: 1),
-      ),
-    );
+  for (var s in studentet) {
+    if (s.mesatarja() > topStudent.mesatarja()) {
+      topStudent = s;
+    }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Buton që ndryshon tekstin'),
-        backgroundColor: Colors.pink,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _teksti,
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _ndryshoTekstin,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.pink,
-                padding: EdgeInsets.symmetric(horizontal: 25, vertical: 12),
-              ),
-              child: Text(
-                'Ndrysho tekstin',
-                style: TextStyle(fontSize: 18, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Printojmë rezultatin
+  print("Top: ${topStudent.emri} - ${topStudent.mesatarja().toStringAsFixed(2)}");
 }
