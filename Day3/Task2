@@ -1,0 +1,92 @@
+import 'package:flutter/material.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Task2Page(),
+    );
+  }
+}
+
+class Task2Page extends StatefulWidget {
+  const Task2Page({super.key});
+  @override
+  State<Task2Page> createState() => _Task2PageState();
+}
+
+class _Task2PageState extends State<Task2Page> {
+  final _controller = TextEditingController();
+  final List<String> _items = [];
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _addItem() {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
+    setState(() {
+      _items.add(text);
+      _controller.clear();
+    });
+  }
+
+  void _deleteItem(int index) {
+    final removed = _items[index];
+    setState(() {
+      _items.removeAt(index);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('U fshi: $removed'), duration: const Duration(seconds: 1)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Task 2 – Listë')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    onSubmitted: (_) => _addItem(),
+                    decoration: const InputDecoration(hintText: 'Artikulli...'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(onPressed: _addItem, child: const Text('Shto')),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _items.length,
+                itemBuilder: (context, i) {
+                  return ListTile(
+                    title: Text(_items[i]),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () => _deleteItem(i),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
