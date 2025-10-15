@@ -1,0 +1,71 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Internship Day 3 - Task 1',
+      home: HomePage(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  String displayText = "Përshëndetje"; // Teksti fillestar
+  int counter = 0; // Numërues opsional
+
+  void _changeText() {
+    setState(() {
+      // Ndryshon tekstin
+      if (displayText == "Përshëndetje") {
+        displayText = "U përditësua!";
+      } else {
+        displayText = "Përshëndetje";
+      }
+      counter++; // rrit numëruesin
+    });
+
+    // Shfaq SnackBar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Veprimi u krye! Numëruesi: $counter'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Flutter Web Button Task'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              displayText,
+              style: TextStyle(fontSize: 24),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _changeText,
+              child: Text('Kliko për të ndryshuar tekstin'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
