@@ -1,0 +1,112 @@
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+void main() {
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: PostsScreen(),
+  ));
+}
+
+class PostsScreen extends StatefulWidget {
+  const PostsScreen({super.key});
+
+  @override
+  State<PostsScreen> createState() => _PostsScreenState();
+}
+
+class _PostsScreenState extends State<PostsScreen> {
+  late Future<List<dynamic>> postsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    postsFuture = fetchPosts();
+  }
+
+  Future<List<dynamic>> fetchPosts() async {
+    final url = Uri.parse('https://jsonplaceholder.typicode.com/posts');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Gabim gjatë marrjes së posteve (${response.statusCode})');
+    }
+  }
+
+  void refreshPosts() {
+    setState(() {
+      postsFuture = fetchPosts();
+    });
+  }
+
+  void showErrorSnackBar(BuildContext context, Object error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Gabim: $error'),
+        action: SnackBarAction(
+          label: 'Provo sërish',
+          onPressed: refreshPosts,
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Lista e Posteve'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: refreshPosts,
+          )
+        ],
+      ),
+      body: FutureBuilder<List<dynamic>>(
+        future: postsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Loading state
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            // Error state → show SnackBar & message
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              showErrorSnackBar(context, snapshot.error!);
+            });
+            return Center(child: Text('Gabim: ${snapshot.error}'));
+          } else if (snapshot.hasData) {
+            // Success state
+            final posts = snapshot.data!;
+            return RefreshIndicator(
+              onRefresh: () async {
+                refreshPosts();
+                await postsFuture;
+              },
+              child: ListView.builder(
+                itemCount: posts.length,
+                itemBuilder: (context, index) {
+                  final post = posts[index];
+                  return ListTile(
+                    title: Text(
+                      post['title'],
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(post['body']),
+                    leading: const Icon(Icons.article_outlined),
+                  );
+                },
+              ),
+            );
+          } else {
+            return const Center(child: Text('Asnjë post nuk u gjet.'));
+          }
+        },
+      ),
+    );
+  }
+}
