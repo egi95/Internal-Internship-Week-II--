@@ -1,0 +1,101 @@
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+void main() {
+  runApp(const MaterialApp(home: PostListScreen()));
+}
+
+class PostListScreen extends StatefulWidget {
+  const PostListScreen({super.key});
+
+  @override
+  State<PostListScreen> createState() => _PostListScreenState();
+}
+
+class _PostListScreenState extends State<PostListScreen> {
+  late Future<List<dynamic>> postsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    postsFuture = fetchPosts();
+  }
+
+  // Funksioni për të marrë postet nga API
+  Future<List<dynamic>> fetchPosts() async {
+    final url = Uri.parse('https://jsonplaceholder.typicode.com/posts');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Gabim gjatë marrjes së të dhënave');
+    }
+  }
+
+  // Funksion për të rifreskuar kërkesën
+  void refreshPosts() {
+    setState(() {
+      postsFuture = fetchPosts();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Lista e Poste'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: refreshPosts,
+          ),
+        ],
+      ),
+      body: FutureBuilder<List<dynamic>>(
+        future: postsFuture,
+        builder: (context, snapshot) {
+          // GJENDJA: Loading
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          // GJENDJA: Gabim
+          if (snapshot.hasError) {
+            return Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Gabim gjatë marrjes së të dhënave'),
+                      action: SnackBarAction(
+                        label: 'Provo sërish',
+                        onPressed: refreshPosts,
+                      ),
+                    ),
+                  );
+                },
+                child: const Text('Shfaq SnackBar për rifreskim'),
+              ),
+            );
+          }
+
+          // GJENDJA: Ka të dhëna
+          final posts = snapshot.data!;
+          return ListView.builder(
+            itemCount: posts.length,
+            itemBuilder: (context, index) {
+              final post = posts[index];
+              return ListTile(
+                leading: CircleAvatar(child: Text('${post['id']}')),
+                title: Text(post['title']),
+                subtitle: Text(post['body']),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
