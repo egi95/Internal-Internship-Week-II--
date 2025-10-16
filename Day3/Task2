@@ -1,0 +1,82 @@
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+void main() {
+  runApp(MaterialApp(home: PostsPage()));
+}
+
+class PostsPage extends StatefulWidget {
+  @override
+  State<PostsPage> createState() => _PostsPageState();
+}
+
+class _PostsPageState extends State<PostsPage> {
+  late Future<List<dynamic>> postsFuture;
+
+  Future<List<dynamic>> getPosts() async {
+    final url = Uri.parse("https://jsonplaceholder.typicode.com/posts");
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception("Gabim ne marrjen e te dhenave");
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    postsFuture = getPosts();
+  }
+
+  void retry() {
+    setState(() {
+      postsFuture = getPosts();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Lista e Poste"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: retry,
+          ),
+        ],
+      ),
+      body: FutureBuilder(
+        future: postsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Gabim ne rrjet"),
+                action: SnackBarAction(
+                  label: "Provo serish",
+                  onPressed: retry,
+                ),
+              ),
+            );
+            return Center(child: Text("Gabim ne ngarkim"));
+          } else {
+            final posts = snapshot.data!;
+            return ListView.builder(
+              itemCount: posts.length,
+              itemBuilder: (context, i) {
+                return ListTile(
+                  title: Text(posts[i]['title']),
+                );
+              },
+            );
+          }
+        },
+      ),
+    );
+  }
+}
