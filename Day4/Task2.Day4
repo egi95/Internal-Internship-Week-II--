@@ -1,0 +1,138 @@
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Posts List with Refresh',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const PostsPage(),
+    );
+  }
+}
+
+class PostsPage extends StatefulWidget {
+  const PostsPage({super.key});
+
+  @override
+  State<PostsPage> createState() => _PostsPageState();
+}
+
+class _PostsPageState extends State<PostsPage> {
+  late Future<List<Post>> _futurePosts;
+
+  @override
+  void initState() {
+    super.initState();
+    _futurePosts = fetchPosts();
+  }
+
+  Future<List<Post>> fetchPosts() async {
+    final response =
+        await http.get(Uri.parse('https://jsonplaceholder.typicode.com/posts'));
+
+    if (response.statusCode == 200) {
+      final List jsonData = json.decode(response.body);
+      return jsonData.map((e) => Post.fromJson(e)).toList();
+    } else {
+      throw Exception('Failed to load posts');
+    }
+  }
+
+  void _refreshPosts() {
+    setState(() {
+      _futurePosts = fetchPosts();
+    });
+  }
+
+  void _showErrorSnackBar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Gabim gjatë marrjes së të dhënave.'),
+        action: SnackBarAction(
+          label: 'Provo sërish',
+          onPressed: () {
+            _refreshPosts();
+          },
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Lista e Posteve'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _refreshPosts,
+          ),
+        ],
+      ),
+      body: FutureBuilder<List<Post>>(
+        future: _futurePosts,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            // Shfaq SnackBar dhe një mesazh gabimi
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _showErrorSnackBar();
+            });
+            return const Center(
+              child: Text('Ndodhi një gabim. Përdorni butonin Refresh.'),
+            );
+          } else if (snapshot.hasData) {
+            final posts = snapshot.data!;
+            return ListView.builder(
+              itemCount: posts.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  leading: CircleAvatar(child: Text(posts[index].id.toString())),
+                  title: Text(posts[index].title),
+                );
+              },
+            );
+          } else {
+            return const Center(child: Text('Nuk ka të dhëna.'));
+          }
+        },
+      ),
+    );
+  }
+}
+
+class Post {
+  final int userId;
+  final int id;
+  final String title;
+  final String body;
+
+  Post({
+    required this.userId,
+    required this.id,
+    required this.title,
+    required this.body,
+  });
+
+  factory Post.fromJson(Map<String, dynamic> json) {
+    return Post(
+      userId: json['userId'],
+      id: json['id'],
+      title: json['title'],
+      body: json['body'],
+    );
+  }
+}
+
+Output
