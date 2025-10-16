@@ -59,3 +59,86 @@ class UserDetail extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
 
+
+Task 2
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+void main() => runApp(MaterialApp(home: PostsScreen()));
+
+class PostsScreen extends StatefulWidget {
+  @override
+  _PostsScreenState createState() => _PostsScreenState();
+}
+
+class _PostsScreenState extends State<PostsScreen> {
+  late Future<List> _postsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _postsFuture = fetchPosts();
+  }
+
+  Future<List> fetchPosts() async {
+    final res = await http.get(Uri.parse('https://jsonplaceholder.typicode.com/posts'));
+    if (res.statusCode == 200) {
+      return json.decode(res.body);
+    } else {
+      throw 'Gabim gjatë marrjes së të dhënave';
+    }
+  }
+
+  void _refresh() {
+    setState(() {
+      _postsFuture = fetchPosts();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Posts'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: _refresh,
+          )
+        ],
+      ),
+      body: FutureBuilder<List>(
+        future: _postsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Gabim!'),
+                  action: SnackBarAction(
+                    label: 'Provo sërish',
+                    onPressed: _refresh,
+                  ),
+                ),
+              );
+            });
+            return Center(child: Text('Gabim gjatë marrjes së të dhënave'));
+          } else if (snapshot.hasData) {
+            final posts = snapshot.data!;
+            return ListView.builder(
+              itemCount: posts.length,
+              itemBuilder: (context, i) => ListTile(title: Text(posts[i]['title'])),
+            );
+          } else {
+            return Center(child: Text('Nuk ka të dhëna'));
+          }
+        },
+      ),
+    );
+  }
+}
+
+
