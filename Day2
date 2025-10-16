@@ -1,0 +1,200 @@
+TASK 1
+class Student {
+  String emri;
+  List<double> nota;
+
+  // Konstruktori
+  Student(this.emri, this.nota);
+
+  // Metoda për llogaritjen e mesatares
+  double mesatarja() {
+    if (nota.isEmpty) {
+      return 0.0;
+    }
+    
+    double shuma = 0.0;
+    for (double note in nota) {
+      shuma += note;
+    }
+    return shuma / nota.length;
+  }
+
+  // Metodë për paraqitje të lexueshme
+  @override
+  String toString() {
+    return '$emri${nota} - Mesatarja: ${mesatarja().toStringAsFixed(2)}';
+  }
+}
+
+void main() {
+  // Krijimi i listës së studentëve
+  List<Student> studentet = [
+    Student('Ana', [8, 9, 10]),
+    Student('Ardit', [6, 7, 8]),
+    Student('Blerina', [9, 9.5, 10, 8.5]),
+    Student('Dritan', []), // Student me lista bosh
+    Student('Elona', [7, 8.5, 9, 8, 7.5]),
+  ];
+
+  // Printimi i të gjithë studentëve
+  print('Lista e të gjithë studentëve:');
+  for (Student student in studentet) {
+    print(student);
+  }
+  print(''); // Linjë bosh për ndarje
+
+  // Gjetja e studentit me mesataren më të lartë
+  Student? topStudent;
+  double mesatarjaMax = -1.0;
+
+  for (Student student in studentet) {
+    double mesatarjaAktuale = student.mesatarja();
+    if (mesatarjaAktuale > mesatarjaMax) {
+      mesatarjaMax = mesatarjaAktuale;
+      topStudent = student;
+    }
+  }
+
+  // Printimi i rezultatit
+  if (topStudent != null) {
+    print('Top: ${topStudent.emri} - ${topStudent.mesatarja().toStringAsFixed(2)}');
+  } else {
+    print('Nuk ka studentë në listë');
+  }
+
+  // Testim shtesë - vetëm me studentë me lista bosh
+  print('\n--- Testim me lista të zbrazëta ---');
+  List<Student> studentetBosh = [
+    Student('Fatos', []),
+    Student('Genta', []),
+  ];
+
+  Student? topBosh;
+  double maxBosh = -1.0;
+  
+  for (Student student in studentetBosh) {
+    double mesatarjaAktuale = student.mesatarja();
+    if (mesatarjaAktuale > maxBosh) {
+      maxBosh = mesatarjaAktuale;
+      topBosh = student;
+    }
+  }
+
+  if (topBosh != null) {
+    print('Top (lista bosh): ${topBosh.emri} - ${topBosh.mesatarja().toStringAsFixed(2)}');
+  }
+}
+
+TASAK 2
+class Product {
+  int id;
+  String name;
+  double price;
+
+  Product(this.id, this.name, this.price);
+
+  @override
+  String toString() {
+    return '#$id $name - ${price.toStringAsFixed(2)}';
+  }
+}
+
+class ProductStore {
+  List<Product> store = [];
+
+  // Shton një produkt në inventar
+  void addProduct(Product p) {
+    store.add(p);
+    print('✅ Produkti u shtua: $p');
+  }
+
+  // Fshin produktin me id e dhënë
+  bool removeById(int id) {
+    for (int i = 0; i < store.length; i++) {
+      if (store[i].id == id) {
+        Product removedProduct = store.removeAt(i);
+        print('🗑️  Produkti u fshi: $removedProduct');
+        return true;
+      }
+    }
+    print('❌ Produkti me ID=$id nuk u gjet');
+    return false;
+  }
+
+  // Kthen produktet brenda intervalit të çmimeve
+  List<Product> inPriceRange(double min, double max) {
+    List<Product> result = store.where((product) {
+      return product.price >= min && product.price <= max;
+    }).toList();
+
+    print('🔍 Produktet në çmimin \$${min.toStringAsFixed(2)}-\$${max.toStringAsFixed(2)}: ${result.length} produkte');
+    return result;
+  }
+
+  // Shfaq të gjithë inventarin
+  void printAllProducts() {
+    print('\n📦 INVENTARI I PLOTË (${store.length} produkte):');
+    if (store.isEmpty) {
+      print('   Inventari është bosh');
+    } else {
+      for (var product in store) {
+        print('   $product');
+      }
+    }
+  }
+}
+
+void main() {
+  // Krijimi i dyqanit
+  ProductStore store = ProductStore();
+
+  print('=== SHTIMI I PRODUKTEVE ===');
+  
+  // Shtimi i produkteve
+  store.addProduct(Product(1, 'Laptop', 899.99));
+  store.addProduct(Product(2, 'Mouse', 15.50));
+  store.addProduct(Product(3, 'Keyboard', 45.75));
+  store.addProduct(Product(4, 'Monitor', 249.99));
+  store.addProduct(Product(5, 'USB Cable', 8.99));
+
+  store.printAllProducts();
+
+  print('\n=== HEQJA E PRODUKTIT ===');
+  // Heqja e produktit me ID=2
+  bool removed = store.removeById(2);
+  print('Rezultati i heqjes: $removed');
+
+  store.printAllProducts();
+
+  print('\n=== KËRKIMI NË INTERVAL ÇMIMI ===');
+  // Kërkimi i produkteve në çmimin 10.00 - 25.00
+  List<Product> affordableProducts = store.inPriceRange(10.00, 25.00);
+  
+  print('Rezultatet e kërkimit:');
+  if (affordableProducts.isEmpty) {
+    print('   Nuk u gjet asnjë produkt në këtë interval');
+  } else {
+    for (var product in affordableProducts) {
+      print('   $product');
+    }
+  }
+
+  print('\n=== TESTIME SHTESË ===');
+  
+  // Testimi me interval të gjerë
+  List<Product> midRangeProducts = store.inPriceRange(40.00, 300.00);
+  print('Produktet mid-range:');
+  for (var product in midRangeProducts) {
+    print('   $product');
+  }
+
+  // Testimi i heqjes së produktit që nuk ekziston
+  print('\n=== TESTIM I HEQJES SË PRODUKTIT JOEKZISTUES ===');
+  bool removedNonExistent = store.removeById(99);
+  print('Rezultati i heqjes së ID=99: $removedNonExistent');
+
+  // Testimi me interval pa produkte
+  print('\n=== KËRKIM PA REZULTATE ===');
+  List<Product> noProducts = store.inPriceRange(1000.00, 2000.00);
+  print('Rezultatet: ${noProducts.length} produkte');
+}
