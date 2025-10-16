@@ -1,0 +1,166 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'user_detail_screen.dart';
+
+class User {
+  final int id;
+  final String name;
+  final String email;
+  final String phone;
+
+  User({required this.id, required this.name, required this.email, required this.phone});
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['id'] as int,
+      name: json['name'] as String,
+      email: json['email'] as String,
+      phone: json['phone'] as String,
+    );
+  }
+}
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'User List Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const UserListScreen(),
+    );
+  }
+}
+
+class UserListScreen extends StatefulWidget {
+  const UserListScreen({super.key});
+
+  @override
+  State<UserListScreen> createState() => _UserListScreenState();
+}
+
+class _UserListScreenState extends State<UserListScreen> {
+  late Future<List<User>> _usersFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _usersFuture = _fetchUsers();
+  }
+
+  Future<List<User>> _fetchUsers() async {
+    const url = 'https://jsonplaceholder.typicode.com/users';
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      List jsonList = jsonDecode(response.body);
+      return jsonList.map((json) => User.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load users. Status Code: ${response.statusCode}');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Users List'),
+      ),
+      body: Center(
+        child: FutureBuilder<List<User>>(
+          future: _usersFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error: ${snapshot.error}'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              });
+              return const Text(
+                'Failed to load data.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.red),
+              );
+            } else if (snapshot.hasData) {
+              final users = snapshot.data!;
+              return ListView.builder(
+                itemCount: users.length,
+                itemBuilder: (context, index) {
+                  final user = users[index];
+                  return ListTile(
+                    title: Text(user.name),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => UserDetailScreen(user: user),
+                        ),
+                      );
+                    },
+                  );
+                },
+              );
+            }
+            return const Text('No users found.');
+          },
+        ),
+      ),
+    );
+  }
+}
+
+// Detail Page
+
+import 'package:flutter/material.dart';
+import 'main.dart';
+
+class UserDetailScreen extends StatelessWidget {
+  final User user;
+
+  const UserDetailScreen({super.key, required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(user.name),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              'Name: ${user.name}',
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Email: ${user.email}',
+              style: const TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Phone: ${user.phone}',
+              style: const TextStyle(fontSize: 18),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
