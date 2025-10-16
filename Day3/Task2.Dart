@@ -19,14 +19,14 @@ class ItemListPage extends StatefulWidget {
 
 class _ItemListPageState extends State<ItemListPage> {
   final TextEditingController _controller = TextEditingController();
-  final List<String> _items = []; // lista e artikujve
+  final List<String> _items = []; 
 
   void _addItem() {
-    if (_controller.text.trim().isEmpty) return; // mos shto bosh
+    if (_controller.text.trim().isEmpty) return; 
 
     setState(() {
       _items.add(_controller.text.trim());
-      _controller.clear(); // pastro fushën e tekstit
+      _controller.clear(); 
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -63,7 +63,6 @@ class _ItemListPageState extends State<ItemListPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // TextField + Button për shtim
             Row(
               children: [
                 Expanded(
