@@ -7,7 +7,7 @@ class Product {
 }
 
 class Store { 
-  List<Product> stor = [];
+  List<Product> store = [];
 
   void addProduct(Product p) { 
     Store.add(p);
