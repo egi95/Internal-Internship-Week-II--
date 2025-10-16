@@ -1,0 +1,172 @@
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+// Pika e hyrjes së aplikacionit
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'User List API',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: UserListPage(),
+    );
+  }
+}
+
+// -------------------------
+// Ekrani kryesor: Lista e përdoruesve
+// -------------------------
+class UserListPage extends StatefulWidget {
+  @override
+  State<UserListPage> createState() => _UserListPageState();
+}
+
+class _UserListPageState extends State<UserListPage> {
+  late Future<List<dynamic>> _usersFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _usersFuture = fetchUsers();
+  }
+
+  // Funksioni që merr të dhëna nga API
+  Future<List<dynamic>> fetchUsers() async {
+    final response = await http
+        .get(Uri.parse('https://jsonplaceholder.typicode.com/users'));
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Gabim gjatë marrjes së të dhënave (${response.statusCode})');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Lista e Përdoruesve')),
+      body: FutureBuilder<List<dynamic>>(
+        future: _usersFuture,
+        builder: (context, snapshot) {
+          // Gjendja: duke u ngarkuar
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          // Gjendja: gabim
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Gabim: ${snapshot.error}',
+                style: const TextStyle(color: Colors.red),
+              ),
+            );
+          }
+
+          // Gjendja: të dhënat janë gati
+          final users = snapshot.data!;
+          return ListView.builder(
+            itemCount: users.length,
+            itemBuilder: (context, index) {
+              final user = users[index];
+              return ListTile(
+                leading: const Icon(Icons.person),
+                title: Text(user['name']),
+                subtitle: Text(user['email']),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UserDetailPage(user: user),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+// -------------------------
+// Ekrani i detajeve të përdoruesit
+// -------------------------
+class UserDetailPage extends StatelessWidget {
+  final dynamic user;
+
+  const UserDetailPage({super.key, required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(user['name'])),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('👤 Emri: ${user['name']}',
+                    style:
+                        const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                Text('📧 Email: ${user['email']}',
+                    style: const TextStyle(fontSize: 16)),
+                const SizedBox(height: 10),
+                Text('📞 Telefoni: ${user['phone']}',
+                    style: const TextStyle(fontSize: 16)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Output
+-----------------------------------------
+👤 Leanne Graham
+   Sincere@april.biz
+-----------------------------------------
+👤 Ervin Howell
+   Shanna@melissa.tv
+-----------------------------------------
+👤 Clementine Bauch
+   Nathan@yesenia.net
+-----------------------------------------
+👤 Patricia Lebsack
+   Julianne.OConner@kory.org
+-----------------------------------------
+👤 Chelsey Dietrich
+   Lucio_Hettinger@annie.ca
+-----------------------------------------
+
+
+Kur e klikon
+───────────────────────────────────────
+          [AppBar: Leanne Graham]
+───────────────────────────────────────
+
+👤 Emri: Leanne Graham
+
+📧 Email: Sincere@april.biz
+
+📞 Telefoni: 1-770-736-8031 x56442
+───────────────────────────────────────
+
+Ne rast gabimi
+Gabim: Exception: Gabim gjatë marrjes së të dhënave (404)
+
