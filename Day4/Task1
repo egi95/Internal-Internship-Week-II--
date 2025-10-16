@@ -1,0 +1,91 @@
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+void main() {
+  runApp(const MaterialApp(
+    home: UserListScreen(),
+    debugShowCheckedModeBanner: false,
+  ));
+}
+
+class UserListScreen extends StatefulWidget {
+  const UserListScreen({super.key});
+
+  @override
+  State<UserListScreen> createState() => _UserListScreenState();
+}
+
+class _UserListScreenState extends State<UserListScreen> {
+  late Future<List<dynamic>> usersFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    usersFuture = fetchUsers();
+  }
+
+  Future<List<dynamic>> fetchUsers() async {
+    final url = Uri.parse('https://jsonplaceholder.typicode.com/users');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Gabim në marrjen e të dhënave (${response.statusCode})');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Përdoruesit')),
+      body: FutureBuilder<List<dynamic>>(
+        future: usersFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Loading state
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            // Error state
+            return Center(
+              child: Text('Gabim: ${snapshot.error}'),
+            );
+          } else if (snapshot.hasData) {
+            // Success state - display list
+            final users = snapshot.data!;
+            return ListView.builder(
+              itemCount: users.length,
+              itemBuilder: (context, index) {
+                final user = users[index];
+                return ListTile(
+                  title: Text(user['name']),
+                  subtitle: Text(user['email']),
+                  leading: const Icon(Icons.person),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => UserDetailScreen(user: user),
+                      ),
+                    );
+                  },
+                );
+              },
+            );
+          } else {
+            // No data
+            return const Center(child: Text('Asnjë përdorues nuk u gjet.'));
+          }
+        },
+      ),
+    );
+  }
+}
+
+class UserDetailScreen extends StatelessWidget {
+  final Map<String, dynamic> user;
+
+  const UserDetailScreen({super.key, required this.user});
+
+  @over
