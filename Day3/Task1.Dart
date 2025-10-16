@@ -6,7 +6,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false, // fsheh shiritin "debug"
+      debugShowCheckedModeBanner: false,
       home: ChangeTextPage(),
     );
   }
@@ -18,7 +18,7 @@ class ChangeTextPage extends StatefulWidget {
 }
 
 class _ChangeTextPageState extends State<ChangeTextPage> {
-  String message = "Përshëndetje"; // teksti fillestar
+  String message = "Përshëndetje"; 
   int counter = 0; // numërues opsional
 
   void _changeText() {
@@ -30,7 +30,6 @@ class _ChangeTextPageState extends State<ChangeTextPage> {
         message = "Përshëndetje";
       }
 
-      // Rrit numëruesin në çdo klikim
       counter++;
     });
 
