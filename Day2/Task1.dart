@@ -19,7 +19,7 @@ void main() {
   var ardit = Student("Arlind", [6.0, 7.0, 8.0]);
   var bledi = Student("Ana", []);  
 
-  List<Student> students = [ana, ardit, bledi];
+  List<Student> students = [ben, arlind, ana];
 
   Student topStudent = students[0];
   for (var student in students) {
