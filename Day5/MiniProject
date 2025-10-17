@@ -1,0 +1,189 @@
+import 'package:flutter/material.dart';
+import 'home.dart';
+import 'add_page.dart';
+import 'info.dart';
+
+void main() {
+  runApp(const MiniProjectApp());
+}
+
+class MiniProjectApp extends StatelessWidget {
+  const MiniProjectApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Day 5 Mini Project',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const HomePage(),
+    );
+  }
+}
+import 'package:flutter/material.dart';
+import 'add_page.dart';
+import 'info.dart';
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<String> products = ["Laptop", "Keyboard", "Mouse"];
+
+  void addNewProduct(String name) {
+    setState(() {
+      products.add(name);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$name added successfully!')),
+    );
+  }
+
+  void removeProduct(int index) {
+    final name = products[index];
+    setState(() {
+      products.removeAt(index);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$name removed!')),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home – Product List'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const InfoPage()),
+              );
+            },
+          ),
+        ],
+      ),
+      body: products.isEmpty
+          ? const Center(child: Text('No products yet.'))
+          : ListView.builder(
+              itemCount: products.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  child: ListTile(
+                    leading: const Icon(Icons.shopping_bag_outlined),
+                    title: Text(products[index]),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => removeProduct(index),
+                    ),
+                  ),
+                );
+              },
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddPage()),
+          );
+          if (result != null && result is String && result.isNotEmpty) {
+            addNewProduct(result);
+          }
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+import 'package:flutter/material.dart';
+
+class AddPage extends StatefulWidget {
+  const AddPage({super.key});
+
+  @override
+  State<AddPage> createState() => _AddPageState();
+}
+
+class _AddPageState extends State<AddPage> {
+  final TextEditingController _controller = TextEditingController();
+
+  void submit() {
+    final name = _controller.text.trim();
+    if (name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a product name')),
+      );
+      return;
+    }
+    Navigator.pop(context, name);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Add Product')),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            TextField(
+              controller: _controller,
+              decoration: const InputDecoration(
+                labelText: 'Product name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: submit,
+              icon: const Icon(Icons.save),
+              label: const Text('Save Product'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+import 'package:flutter/material.dart';
+
+class InfoPage extends StatelessWidget {
+  const InfoPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('About App')),
+      body: const Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('📱 Flutter Mini Project',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Text(
+              'Ky është një aplikacion i vogël i ndërtuar me Flutter Web për praktikën e brendshme (Internal Internship – Day 5).',
+            ),
+            SizedBox(height: 10),
+            Text('👤 Autori: [Shkruaj emrin tënd këtu]'),
+            SizedBox(height: 10),
+            Text('🗓️ Data: 2025'),
+            SizedBox(height: 10),
+            Text(
+              'Ky projekt përmban 3 faqe: listë, formë shtimi dhe informacion.',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
