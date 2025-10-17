@@ -185,7 +185,7 @@ class InfoPage extends StatelessWidget {
               Icon(Icons.school, size: 80, color: Colors.indigo),
               SizedBox(height: 20),
               Text(
-                '🎓 StudentApp\n\nKy aplikacion u krijua për Day 5 Mini Project.\n\n'
+                'StudentApp\n\nKy aplikacion u krijua për Day 5 Mini Project.\n\n'
                 'Funksione:\n- Shfaq listën e studentëve\n- Shton studentë të rinj\n- Fshin studentë\n\n'
                 'Autori: [Shkruaj emrin tënd]',
                 textAlign: TextAlign.center,
