@@ -1,0 +1,165 @@
+import 'package:flutter/material.dart';
+import 'home.dart';
+
+class AddItemPage extends StatefulWidget {
+  @override
+  _AddItemPageState createState() => _AddItemPageState();
+}
+
+class _AddItemPageState extends State<AddItemPage> {
+  final TextEditingController _controller = TextEditingController();
+
+  void _addItem() {
+    final text = _controller.text.trim();
+    if (text.isNotEmpty) {
+      HomePage.items.add(text);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Item added successfully!')),
+      );
+      Navigator.pop(context);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Add Item')),
+      body: Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          children: [
+            TextField(
+              controller: _controller,
+              decoration: InputDecoration(
+                labelText: 'Enter item name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: _addItem,
+              icon: Icon(Icons.check),
+              label: Text('Add Item'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+import 'package:flutter/material.dart';
+
+class HomePage extends StatefulWidget {
+  static List<String> items = [];
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Home Page'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.info_outline),
+            onPressed: () => Navigator.pushNamed(context, '/info'),
+          ),
+        ],
+      ),
+      body: HomePage.items.isEmpty
+          ? Center(child: Text('No items yet. Add some!'))
+          : ListView.builder(
+              itemCount: HomePage.items.length,
+              itemBuilder: (context, index) {
+                final item = HomePage.items[index];
+                return Card(
+                  margin: EdgeInsets.all(8),
+                  child: ListTile(
+                    title: Text(item),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        setState(() {
+                          HomePage.items.removeAt(index);
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Item deleted')),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.pushNamed(context, '/add')
+            .then((_) => setState(() {})),
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+import 'package:flutter/material.dart';
+
+class InfoPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('About App')),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Mini Project – Day 5',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Text('This app was is built by: Flutter WEB'),
+            SizedBox(height: 10),
+            Text('Developer: Altina Brahimi'),
+            SizedBox(height: 10),
+            Text('Use: setState(), navigation, SnackBar and ListView.'),
+            Spacer(),
+            Center(
+              child: Text(
+                '© 2025 All rights reserved.',
+                style: TextStyle(color: Colors.grey),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+import 'package:flutter/material.dart';
+import 'home.dart';
+import 'add_or_detail.dart';
+import 'info.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Mini Project Day 5',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => HomePage(),
+        '/add': (context) => AddItemPage(),
+        '/info': (context) => InfoPage(),
+      },
+    );
+  }
+}
