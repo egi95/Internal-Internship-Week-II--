@@ -1,0 +1,192 @@
+main.dart
+
+import 'package:flutter/material.dart';
+import 'home.dart';
+import 'add_page.dart';
+import 'info.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Mini Project – Day 5',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: HomePage(),
+      routes: {
+        '/add': (_) => AddPage(),
+        '/info': (_) => InfoPage(),
+      },
+    );
+  }
+}
+
+
+info.dart
+
+import 'package:flutter/material.dart';
+
+class InfoPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Rreth Aplikacionit')),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('📘 Mini Project – Day 5',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Text(
+                'Ky aplikacion eshte krijuar per te demonstruar njohurite e fituara ne Dart & Flutter:'),
+            SizedBox(height: 10),
+            Text(
+                '- Perdorimi i klasave dhe listave\n- setState dhe navigimi\n- SnackBar dhe forma baze\n- Flutter Web (run -d chrome)'),
+            Spacer(),
+            Text('Autori: Emri Yt\nData: 17 Tetor 2025',
+                style: TextStyle(color: Colors.grey)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+home.dart
+
+import 'package:flutter/material.dart';
+import 'models/product.dart';
+
+class HomePage extends StatefulWidget {
+  static List<Product> products = [];
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  void _removeItem(int index) {
+    setState(() {
+      HomePage.products.removeAt(index);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Produkti u fshi')),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Lista e Produkteve'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.info_outline),
+            onPressed: () => Navigator.pushNamed(context, '/info'),
+          ),
+        ],
+      ),
+      body: HomePage.products.isEmpty
+          ? Center(child: Text('Asnje produkt ende.'))
+          : ListView.builder(
+              itemCount: HomePage.products.length,
+              itemBuilder: (context, index) {
+                final p = HomePage.products[index];
+                return ListTile(
+                  title: Text(p.name),
+                  subtitle: Text('${p.price.toStringAsFixed(2)} €'),
+                  trailing: IconButton(
+                    icon: Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _removeItem(index),
+                  ),
+                );
+              },
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.pushNamed(context, '/add').then((_) {
+          setState(() {}); // rifreskon pas kthimit nga AddPage
+        }),
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+add_page.dart
+
+import 'package:flutter/material.dart';
+import 'home.dart';
+import 'models/product.dart';
+
+class AddPage extends StatefulWidget {
+  @override
+  State<AddPage> createState() => _AddPageState();
+}
+
+class _AddPageState extends State<AddPage> {
+  final _nameController = TextEditingController();
+  final _priceController = TextEditingController();
+
+  void _addProduct() {
+    final name = _nameController.text.trim();
+    final price = double.tryParse(_priceController.text) ?? 0;
+
+    if (name.isEmpty || price <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ju lutem plotesoni te dhenat sakte.')),
+      );
+      return;
+    }
+
+    HomePage.products.add(Product(name, price));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Produkti u shtua me sukses!')),
+    );
+
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Shto Produkt')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(labelText: 'Emri i produktit'),
+            ),
+            TextField(
+              controller: _priceController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: 'Çmimi (€)'),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _addProduct,
+              child: Text('Shto'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+product.dart
+
+class Product {
+  final String name;
+  final double price;
+
+  Product(this.name, this.price);
+}
+
