@@ -1,0 +1,127 @@
+import 'package:flutter/material.dart';
+import 'home.dart';
+
+class AddPage extends StatefulWidget {
+  const AddPage({super.key});
+
+  @override
+  State<AddPage> createState() => _AddPageState();
+}
+
+class _AddPageState extends State<AddPage> {
+  final _formKey = GlobalKey<FormState>();
+
+  String _title = '';
+  String _author = '';
+  String _year = '';
+
+  void _showSuccessMessage(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Successfully added: $_title by $_author!'),
+        duration: const Duration(seconds: 3),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+
+      print('New Book Added: Title: $_title, Author: $_author, Year: $_year');
+
+      _showSuccessMessage(context);
+
+      _formKey.currentState!.reset();
+    } else {
+      print('Form validation failed.');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('➕ Add New Book'),
+        backgroundColor: Colors.teal,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Book Title',
+                  icon: Icon(Icons.title),
+                ),
+                onSaved: (value) {
+                  _title = value ?? '';
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a title.';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Author Name',
+                  icon: Icon(Icons.person),
+                ),
+                onSaved: (value) {
+                  _author = value ?? '';
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter an author.';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Publication Year',
+                  icon: Icon(Icons.calendar_today),
+                ),
+                onSaved: (value) {
+                  _year = value ?? '';
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Enter a year.';
+                  }
+                  if (value.length != 4 || int.tryParse(value) == null) {
+                    return 'Year must be a valid 4-digit number.';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 40),
+              Center(
+                child: ElevatedButton.icon(
+                  onPressed: _submitForm,
+                  icon: const Icon(Icons.save),
+                  label: const Text('Save Book'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
+                    backgroundColor: Colors.teal,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
