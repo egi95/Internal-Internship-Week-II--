@@ -1,0 +1,131 @@
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+void main() {
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: UserListScreen(),
+  ));
+}
+
+class User {
+  final String name;
+  final String email;
+  final String phone;
+
+  User({required this.name, required this.email, required this.phone});
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      name: json['name'],
+      email: json['email'],
+      phone: json['phone'],
+    );
+  }
+}
+
+class UserListScreen extends StatefulWidget {
+  @override
+  _UserListScreenState createState() => _UserListScreenState();
+}
+
+class _UserListScreenState extends State<UserListScreen> {
+  late Future<List<User>> futureUsers;
+
+  Future<List<User>> fetchUsers() async {
+    final response =
+        await http.get(Uri.parse('https://jsonplaceholder.typicode.com/users'));
+
+    if (response.statusCode == 200) {
+      List data = jsonDecode(response.body);
+      return data.map((json) => User.fromJson(json)).toList();
+    } else {
+      throw Exception('Gabim gjatë marrjes së të dhënave');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    futureUsers = fetchUsers();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Përdoruesit'),
+        backgroundColor: Colors.blueAccent,
+      ),
+      body: FutureBuilder<List<User>>(
+        future: futureUsers,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text('Gabim gjatë ngarkimit të të dhënave.'),
+            );
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(
+              child: Text('Nuk u gjetën të dhëna.'),
+            );
+          } else {
+            final users = snapshot.data!;
+            return ListView.builder(
+              itemCount: users.length,
+              itemBuilder: (context, index) {
+                final user = users[index];
+                return Card(
+                  child: ListTile(
+                    title: Text(user.name),
+                    trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => UserDetailScreen(user: user),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            );
+          }
+        },
+      ),
+    );
+  }
+}
+
+class UserDetailScreen extends StatelessWidget {
+  final User user;
+
+  UserDetailScreen({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(user.name),
+        backgroundColor: Colors.blueAccent,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Emri: ${user.name}',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Text('Email: ${user.email}', style: TextStyle(fontSize: 16)),
+            SizedBox(height: 10),
+            Text('Telefon: ${user.phone}', style: TextStyle(fontSize: 16)),
+          ],
+        ),
+      ),
+    );
+  }
+}
