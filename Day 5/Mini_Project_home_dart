@@ -1,0 +1,81 @@
+import 'package:flutter/material.dart';
+import 'add.dart';
+
+class HomePage extends StatelessWidget {
+  final List<Map<String, String>> bookList = [
+    {'title': 'The Flutter Guide', 'author': 'Dev Junior', 'year': '2023'},
+    {'title': 'Dart Essentials', 'author': 'Code Newbie', 'year': '2022'},
+    {'title': 'Widget World', 'author': 'UI Master', 'year': '2024'},
+  ];
+
+  final bool hasBooks = true;
+
+  HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('📚 Book Tracker'),
+        backgroundColor: Colors.blueGrey,
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text(
+              'Your Current Library',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Expanded(
+            child: hasBooks
+                ? ListView.builder(
+                    itemCount: bookList.length,
+                    itemBuilder: (context, index) {
+                      final book = bookList[index];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 5.0),
+                        child: ListTile(
+                          title: Text(book['title']!),
+                          subtitle:
+                              Text('By: ${book['author']} (${book['year']})'),
+                          leading: const Icon(Icons.book_outlined,
+                              color: Colors.blueGrey),
+                          onTap: () {},
+                        ),
+                      );
+                    },
+                  )
+                : const Center(
+                    child: Text('No books added yet!'),
+                  ),
+          ),
+          const Divider(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              TextButton.icon(
+                icon: const Icon(Icons.add_box),
+                label: const Text('Add Book'),
+                onPressed: () {
+                  // TODO: Navigation to AddPage
+                },
+              ),
+              TextButton.icon(
+                icon: const Icon(Icons.info_outline),
+                label: const Text('About App'),
+                onPressed: () {
+                  // TODO: Navigation to AboutPage
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+        ],
+      ),
+    );
+  }
+}
