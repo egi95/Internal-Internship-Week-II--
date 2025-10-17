@@ -1,5 +1,5 @@
 class Student {
-  String emri;
+  String emri; 
   List<double> nota;
 
  
