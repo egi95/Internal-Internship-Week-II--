@@ -1,3 +1,4 @@
+Task 1
 class Student {
   String emri;
   List<double> nota;
@@ -30,3 +31,46 @@ void main() {
     print("Nuk ka studentë në listë.");
   }
 }
+
+Task 2
+class Product {
+  int id;
+  String name;
+  double price;
+
+  Product(this.id, this.name, this.price);
+}
+
+class Store {
+  List<Product> store = [];
+
+  void addProduct(Product p) {
+    store.add(p);
+  }
+
+  bool removeById(int id) {
+    return store.removeWhere((p) => p.id == id) > 0;
+  }
+
+  List<Product> inPriceRange(double min, double max) {
+    return store.where((p) => p.price >= min && p.price <= max).toList();
+  }
+}
+
+void main() {
+  Store repo = Store();
+
+  repo.addProduct(Product(1, "Bukë", 10.0));
+  repo.addProduct(Product(2, "Qumësht", 8.5));
+  repo.addProduct(Product(3, "Djathë", 20.0));
+  repo.addProduct(Product(4, "Mish", 30.0));
+
+  repo.removeById(2);
+
+  List<Product> rezultat = repo.inPriceRange(10.0, 25.0);
+
+  for (var p in rezultat) {
+    print("#${p.id} ${p.name} - ${p.price.toStringAsFixed(2)}");
+  }
+}
+
