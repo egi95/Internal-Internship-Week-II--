@@ -1,0 +1,97 @@
+
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: ListaArtikujve(),
+  ));
+}
+
+class ListaArtikujve extends StatefulWidget {
+  @override
+  _ListaArtikujveState createState() => _ListaArtikujveState();
+}
+
+class _ListaArtikujveState extends State<ListaArtikujve> {
+  final TextEditingController _controller = TextEditingController();
+  final List<String> _artikujt = [];
+
+  void _shtoArtikull() {
+    String text = _controller.text.trim();
+    if (text.isNotEmpty) {
+      setState(() {
+        _artikujt.add(text);
+      });
+      _controller.clear();
+    }
+  }
+
+  void _fshiArtikull(int index) {
+    String artikulli = _artikujt[index];
+    setState(() {
+      _artikujt.removeAt(index);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("U fshi: $artikulli")),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Lista e Artikujve'),
+        backgroundColor: Colors.blueAccent,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // TextField për shtim
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      labelText: 'Shkruaj artikullin',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: _shtoArtikull,
+                  child: Text('Shto'),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+
+            
+            Expanded(
+              child: _artikujt.isEmpty
+                  ? Center(child: Text('Asnjë artikull i shtuar.'))
+                  : ListView.builder(
+                      itemCount: _artikujt.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          child: ListTile(
+                            title: Text(_artikujt[index]),
+                            trailing: IconButton(
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _fshiArtikull(index),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
