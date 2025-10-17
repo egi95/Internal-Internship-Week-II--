@@ -1,0 +1,74 @@
+import 'package:flutter/material.dart';
+import 'home.dart';
+
+class AboutPage extends StatelessWidget {
+  final Set<String> technologies = {
+    'Flutter',
+    'Dart',
+    'Widgets',
+    'StatefulWidget',
+  };
+
+  AboutPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    const String appVersion = '1.0.0';
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('✨ About This App'),
+        backgroundColor: Colors.indigo,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            const Text(
+              'Book Tracker Application',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              'Version: $appVersion',
+              style: const TextStyle(fontSize: 16, color: Colors.black54),
+            ),
+            const Divider(height: 30),
+            const Text(
+              'Purpose:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'This simple application was built as a demonstration project '
+              'to exercise core concepts learned in the first week of Flutter development, '
+              'including state management, basic navigation, forms, and data structures.',
+            ),
+            const Divider(height: 30),
+            Row(
+              children: <Widget>[
+                const Text(
+                  'Built Using:',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  technologies.join(', '),
+                  style: const TextStyle(fontStyle: FontStyle.italic),
+                ),
+              ],
+            ),
+            const Spacer(),
+            Center(
+              child: Text(
+                '© 2025 Flutter Beginner Project',
+                style: TextStyle(color: Colors.grey[600]),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
