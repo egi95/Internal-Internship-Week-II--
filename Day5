@@ -1,0 +1,151 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MiniApp());
+}
+
+class MiniApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Mini Project - Day 5',
+      debugShowCheckedModeBanner: false,
+      initialRoute: '/',
+      routes: {
+        '/': (_) => HomeScreen(),
+        '/add': (_) => AddItemScreen(),
+        '/info': (_) => InfoScreen(),
+      },
+    );
+  }
+}
+
+
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  List<String> items = ['Libri 1', 'Libri 2', 'Libri 3'];
+
+  void _removeItem(int index) {
+    final removed = items[index];
+    setState(() {
+      items.removeAt(index);
+    });
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('$removed u fshi!')));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Lista e artikujve'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.info),
+            onPressed: () => Navigator.pushNamed(context, '/info'),
+          ),
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () => Navigator.pushNamed(context, '/add').then((newItem) {
+              if (newItem != null) {
+                setState(() => items.add(newItem));
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text('$newItem u shtua!')));
+              }
+            }),
+          ),
+        ],
+      ),
+      body: items.isEmpty
+          ? Center(child: Text('Lista është bosh'))
+          : ListView.builder(
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  child: ListTile(
+                    title: Text(items[index]),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => _removeItem(index),
+                    ),
+                  ),
+                );
+              },
+            ),
+    );
+  }
+}
+
+
+class AddItemScreen extends StatefulWidget {
+  @override
+  _AddItemScreenState createState() => _AddItemScreenState();
+}
+
+class _AddItemScreenState extends State<AddItemScreen> {
+  final TextEditingController _controller = TextEditingController();
+
+  void _submit() {
+    final text = _controller.text.trim();
+    if (text.isNotEmpty) {
+      Navigator.pop(context, text);
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Ju lutem shkruani një artikull')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Shto artikull')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _controller,
+              decoration: InputDecoration(
+                labelText: 'Emri i artikullit',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(onPressed: _submit, child: Text('Shto')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+class InfoScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Rreth Aplikacionit')),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Mini Project - Day 5',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Text('Krijuar nga: Emri Juaj', style: TextStyle(fontSize: 18)),
+            SizedBox(height: 10),
+            Text(
+                'Ky aplikacion tregon një listë artikujsh, mund të shtoni dhe fshini artikuj.',
+                style: TextStyle(fontSize: 16)),
+          ],
+        ),
+      ),
+    );
+  }
+}
