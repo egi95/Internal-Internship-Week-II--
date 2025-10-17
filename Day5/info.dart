@@ -24,7 +24,7 @@ class InfoPage extends StatelessWidget {
                 '• SnackBar për njoftime\n'
                 '• Navigim me Navigator.pushNamed\n'),
             SizedBox(height: 20),
-            Text('Autor: Mal Llozana'),
+            Text('Autor: Nesa Krasniqi'),
             Text('Data: 17 Tetor 2025'),
           ],
         ),
