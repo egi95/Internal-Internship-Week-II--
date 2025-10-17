@@ -1,0 +1,48 @@
+
+
+class Student {
+  String emri;
+  List<double> nota;
+
+ 
+  Student(this.emri, this.nota);
+
+  // Metoda për të llogaritur mesataren
+  double mesatarja() {
+    if (nota.isEmpty) {
+      return 0.0;
+    }
+    double shuma = 0;
+    for (var n in nota) {
+      shuma += n;
+    }
+    return shuma / nota.length;
+  }
+}
+
+void main() {
+ 
+  List<Student> studentet = [
+    Student('Ana', [8, 9, 10]),
+    Student('Ardit', [6, 7, 8]),
+    Student('Bora', []), // Lista bosh për testim
+  ];
+
+  
+  Student? topStudent;
+  double maxMesatare = 0.0;
+
+  for (var s in studentet) {
+    double mes = s.mesatarja();
+    if (mes > maxMesatare) {
+      maxMesatare = mes;
+      topStudent = s;
+    }
+  }
+
+  if (topStudent != null) {
+    print("Top: ${topStudent.emri} - ${maxMesatare.toStringAsFixed(2)}");
+  } else {
+    print("Nuk ka studentë në listë.");
+  }
+}
