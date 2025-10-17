@@ -1,0 +1,118 @@
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+void main() {
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: PostsScreen(),
+  ));
+}
+
+class Post {
+  final int id;
+  final String title;
+
+  Post({required this.id, required this.title});
+
+  factory Post.fromJson(Map<String, dynamic> json) {
+    return Post(
+      id: json['id'],
+      title: json['title'],
+    );
+  }
+}
+
+class PostsScreen extends StatefulWidget {
+  @override
+  _PostsScreenState createState() => _PostsScreenState();
+}
+
+class _PostsScreenState extends State<PostsScreen> {
+  late Future<List<Post>> futurePosts;
+
+  Future<List<Post>> fetchPosts() async {
+    final response =
+        await http.get(Uri.parse('https://jsonplaceholder.typicode.com/posts'));
+
+    if (response.statusCode == 200) {
+      List data = jsonDecode(response.body);
+      return data.map((json) => Post.fromJson(json)).toList();
+    } else {
+      throw Exception('Gabim gjatë marrjes së të dhënave');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    futurePosts = fetchPosts();
+  }
+
+  void _refreshPosts() {
+    setState(() {
+      futurePosts = fetchPosts();
+    });
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        action: SnackBarAction(
+          label: 'Provo sërish',
+          onPressed: _refreshPosts,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Postet'),
+        backgroundColor: Colors.blueAccent,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: _refreshPosts,
+          ),
+        ],
+      ),
+      body: FutureBuilder<List<Post>>(
+        future: futurePosts,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _showErrorSnackBar('Gabim gjatë ngarkimit të posteve');
+            });
+            return Center(child: Text('Gabim gjatë ngarkimit.'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('Nuk ka postime.'));
+          } else {
+            final posts = snapshot.data!;
+            return RefreshIndicator(
+              onRefresh: () async {
+                _refreshPosts();
+              },
+              child: ListView.builder(
+                itemCount: posts.length,
+                itemBuilder: (context, index) {
+                  final post = posts[index];
+                  return Card(
+                    child: ListTile(
+                      title: Text(post.title),
+                    ),
+                  );
+                },
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
+}
