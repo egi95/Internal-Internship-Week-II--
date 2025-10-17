@@ -1,1 +1,27 @@
+List<int> lista1 = [1, 2, 3, 4, 5, 6];
+  List<int> lista2 = [];
+  List<int> lista3 = [2, 4, 8, 10];
+  List<int> lista4 = [1, 3, 5, 7];
 
+  print(ndaj(lista1));
+  print(ndaj(lista2));
+  print(ndaj(lista3));
+  print(ndaj(lista4));
+}
+
+Map<String, List<int>> ndaj(List<int> nums) {
+  List<int> cift = [];
+  List<int> tek = [];
+
+  for (var num in nums) {
+    if (num % 2 == 0) {
+      cift.add(num);
+    } else {
+      tek.add(num);
+    }
+  }
+
+  print('cift: $cift');
+  print('tek: $tek');
+
+  return {'cift': cift, 'tek': tek};
