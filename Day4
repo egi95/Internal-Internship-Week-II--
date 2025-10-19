@@ -1,0 +1,233 @@
+Task 1
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Task 1 - Përdorues nga API',
+      debugShowCheckedModeBanner: false,
+      home: UsersScreen(),
+    );
+  }
+}
+
+class UsersScreen extends StatefulWidget {
+  @override
+  _UsersScreenState createState() => _UsersScreenState();
+}
+
+class _UsersScreenState extends State<UsersScreen> {
+  Future<List<dynamic>> fetchUsers() async {
+    final url = Uri.parse('https://jsonplaceholder.typicode.com/users');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Gabim në marrjen e të dhënave (${response.statusCode})');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Lista e përdoruesve'),
+        centerTitle: true,
+      ),
+      body: FutureBuilder<List<dynamic>>(
+        future: fetchUsers(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Gabim: ${snapshot.error}',
+                style: TextStyle(color: Colors.red),
+              ),
+            );
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('Nuk u gjet asnjë përdorues.'));
+          }
+
+          final users = snapshot.data!;
+          return ListView.builder(
+            itemCount: users.length,
+            itemBuilder: (context, index) {
+              final user = users[index];
+              return Card(
+                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: ListTile(
+                  title: Text(user['name']),
+                  subtitle: Text(user['email']),
+                  trailing: Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => UserDetailScreen(user: user),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class UserDetailScreen extends StatelessWidget {
+  final Map<String, dynamic> user;
+
+  const UserDetailScreen({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(user['name']),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Card(
+          elevation: 3,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Emri: ${user['name']}', style: TextStyle(fontSize: 18)),
+                SizedBox(height: 10),
+                Text('Email: ${user['email']}', style: TextStyle(fontSize: 16)),
+                SizedBox(height: 10),
+                Text('Telefon: ${user['phone']}', style: TextStyle(fontSize: 16)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Task 2
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Task 2 - Lista e posteve',
+      debugShowCheckedModeBanner: false,
+      home: PostsScreen(),
+    );
+  }
+}
+
+class PostsScreen extends StatefulWidget {
+  @override
+  _PostsScreenState createState() => _PostsScreenState();
+}
+
+class _PostsScreenState extends State<PostsScreen> {
+  late Future<List<dynamic>> futurePosts;
+
+  @override
+  void initState() {
+    super.initState();
+    futurePosts = fetchPosts();
+  }
+
+  Future<List<dynamic>> fetchPosts() async {
+    final url = Uri.parse('https://jsonplaceholder.typicode.com/posts');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Gabim në marrjen e të dhënave (${response.statusCode})');
+    }
+  }
+
+  void _refreshPosts() {
+    setState(() {
+      futurePosts = fetchPosts();
+    });
+  }
+
+  void _showRetrySnackBar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Gabim gjatë marrjes së posteve.'),
+        action: SnackBarAction(
+          label: 'Provo sërish',
+          onPressed: _refreshPosts,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Lista e posteve'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: _refreshPosts,
+          ),
+        ],
+      ),
+      body: FutureBuilder<List<dynamic>>(
+        future: futurePosts,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            // Shfaq SnackBar vetëm një herë
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _showRetrySnackBar();
+            });
+            return Center(child: Text('Gabim gjatë marrjes së të dhënave.'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('Nuk u gjet asnjë post.'));
+          }
+
+          final posts = snapshot.data!;
+          return ListView.builder(
+            itemCount: posts.length,
+            itemBuilder: (context, index) {
+              final post = posts[index];
+              return Card(
+                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: ListTile(
+                  title: Text(post['title']),
+                  subtitle: Text('ID: ${post['id']}'),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
