@@ -1,1 +1,146 @@
+lib/main.dart
+
+import 'package:flutter/material.dart';
+import 'home.dart';
+import 'add_or_detail.dart';
+import 'info.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'My Flutter Web App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const HomePage(),
+    );
+  }
+}
+
+lib/home.dart
+
+import 'package:flutter/material.dart';
+import 'add_or_detail.dart';
+import 'info.dart';
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<String> items = ["Flutter", "Dart", "Web App"];
+
+  void removeItem(int index) {
+    setState(() {
+      items.removeAt(index);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Artikulli u fshi!")),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Home - Lista"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const InfoPage()),
+              );
+            },
+          )
+        ],
+      ),
+      body: ListView.builder(
+        itemCount: items.length,
+        itemBuilder: (context, i) {
+          return ListTile(
+            title: Text(items[i]),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: () => removeItem(i),
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final newItem = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddPage()),
+          );
+          if (newItem != null) {
+            setState(() => items.add(newItem));
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Artikulli u shtua!")),
+            );
+          }
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+
+lib/add_or_detail.dart
+
+import 'package:flutter/material.dart';
+
+class AddPage extends StatefulWidget {
+  const AddPage({super.key});
+
+  @override
+  State<AddPage> createState() => _AddPageState();
+}
+
+class _AddPageState extends State<AddPage> {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Shto Artikull")),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _controller,
+              decoration: const InputDecoration(
+                labelText: "Emri i artikullit",
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                if (_controller.text.isNotEmpty) {
+                  Navigator.pop(context, _controller.text);
+                }
+              },
+              child: const Text("Shto"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
 
