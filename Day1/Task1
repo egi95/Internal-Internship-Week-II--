@@ -1,0 +1,27 @@
+double mesatarja(List<double> nota) {
+  if (nota.isEmpty) return 0.0;
+  
+  double shuma = 0.0;
+  for (double n in nota) {
+    shuma += n;
+  }
+  
+  return shuma / nota.length;
+}
+
+void main() {
+  // Testimi me shembullin e dhënë
+  List<double> nota = [7, 8.5, 10, 6];
+  double rezultati = mesatarja(nota);
+  print('Mesatarja: ${rezultati.toStringAsFixed(2)}'); // Output: 7.88
+  
+  // Testimi me listë bosh
+  List<double> listaBosh = [];
+  double rezultatiBosh = mesatarja(listaBosh);
+  print('Mesatarja e listes bosh: ${rezultatiBosh.toStringAsFixed(2)}'); // Output: 0.00
+  
+  // Testimi me vlera të tjera double
+  List<double> notaDouble = [9.5, 8.0, 7.5, 10.0];
+  double rezultatiDouble = mesatarja(notaDouble);
+  print('Mesatarja e notave double: ${rezultatiDouble.toStringAsFixed(2)}'); // Output: 8.75
+}
