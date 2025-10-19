@@ -1,0 +1,49 @@
+class Student {
+  String emri;
+  List<double> nota;
+  
+  Student(this.emri, this.nota);
+  
+  double mesatarja() {
+    if (nota.isEmpty) return 0.0;
+    
+    double shuma = 0.0;
+    for (double n in nota) {
+      shuma += n;
+    }
+    
+    return shuma / nota.length;
+  }
+}
+
+void main() {
+  // Krijimi i studentëve
+  List<Student> studentet = [
+    Student('Ana', [8, 9, 10]),
+    Student('Ardit', [6, 7, 8]),
+    Student('Blerina', [9.5, 8.5, 10, 9]),
+    Student('Dritan', []), // Test me listë bosh
+    Student('Era', [7, 8, 6.5, 9])
+  ];
+  
+  // Gjetja e studentit me mesataren më të lartë
+  Student? topStudent;
+  double topMesatarja = -1.0;
+  
+  for (Student student in studentet) {
+    double mesatarja = student.mesatarja();
+    print('${student.emri}: ${student.nota} -> Mesatarja: ${mesatarja.toStringAsFixed(2)}');
+    
+    if (mesatarja > topMesatarja) {
+      topMesatarja = mesatarja;
+      topStudent = student;
+    }
+  }
+  
+  // Printimi i rezultatit
+  if (topStudent != null) {
+    print('\nTop: ${topStudent.emri} - ${topMesatarja.toStringAsFixed(2)}');
+  } else {
+    print('\nNuk ka studentë në listë');
+  }
+}
