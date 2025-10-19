@@ -1,0 +1,93 @@
+class Product {
+  int id;
+  String name;
+  double price;
+  
+  Product(this.id, this.name, this.price);
+  
+  @override
+  String toString() {
+    return '#$id $name - ${price.toStringAsFixed(2)}';
+  }
+}
+
+class Store {
+  List<Product> store = [];
+  
+  // Shton një produkt në inventar
+  void addProduct(Product p) {
+    store.add(p);
+  }
+  
+  // Fshin produktin me id e dhënë, kthen true nëse u fshi
+  bool removeById(int id) {
+    int initialLength = store.length;
+    store.removeWhere((product) => product.id == id);
+    return store.length < initialLength;
+  }
+  
+  // Kthen produktet brenda intervalit të çmimeve
+  List<Product> inPriceRange(double min, double max) {
+    return store.where((product) => product.price >= min && product.price <= max).toList();
+  }
+  
+  // Metodë ndihmëse për të printuar të gjitha produktet
+  void printAllProducts() {
+    if (store.isEmpty) {
+      print('Nuk ka produkte në inventar');
+      return;
+    }
+    
+    print('Të gjitha produktet në inventar:');
+    for (Product product in store) {
+      print(product);
+    }
+  }
+}
+
+void main() {
+  // Krijimi i dyqanit
+  Store store = Store();
+  
+  // Shtimi i 4 produkteve
+  store.addProduct(Product(1, 'Laptop', 899.99));
+  store.addProduct(Product(2, 'Mouse', 15.50));
+  store.addProduct(Product(3, 'Keyboard', 45.75));
+  store.addProduct(Product(4, 'Monitor', 249.99));
+  
+  print('=== PAS SHTIMIT TË PRODUKTEVE ===');
+  store.printAllProducts();
+  
+  // Fshirja e produktit me id=2
+  bool uFshi = store.removeById(2);
+  print('\n=== PAS FSHIRJES SË PRODUKTIT ME ID=2 ===');
+  print('U fshi produkti me id=2: $uFshi');
+  store.printAllProducts();
+  
+  // Marrja e produkteve në rangun e çmimeve 10.0 - 25.0
+  List<Product> produkteNeRang = store.inPriceRange(10.0, 25.0);
+  print('\n=== PRODUKTET NË RANGUN 10.0 - 25.0 ===');
+  if (produkteNeRang.isEmpty) {
+    print('Nuk ka produkte në këtë rang çmimesh');
+  } else {
+    for (Product product in produkteNeRang) {
+      print(product);
+    }
+  }
+  
+  // Testimi shtesë: Marrja e produkteve në rangun 40.0 - 900.0
+  List<Product> produkteNeRang2 = store.inPriceRange(40.0, 900.0);
+  print('\n=== PRODUKTET NË RANGUN 40.0 - 900.0 ===');
+  if (produkteNeRang2.isEmpty) {
+    print('Nuk ka produkte në këtë rang çmimesh');
+  } else {
+    for (Product product in produkteNeRang2) {
+      print(product);
+    }
+  }
+  
+  // Testimi i fshirjes së produktit që nuk ekziston
+  bool uFshi2 = store.removeById(10); // ID që nuk ekziston
+  print('\n=== TESTIMI I FSHIRJES SË PRODUKTIT JOEKZISTUES ===');
+  print('U fshi produkti me id=10: $uFshi2');
+}
