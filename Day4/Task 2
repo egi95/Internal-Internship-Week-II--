@@ -1,0 +1,294 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import '../models/post.dart';
+
+class PostsScreen extends StatefulWidget {
+  @override
+  _PostsScreenState createState() => _PostsScreenState();
+}
+
+class _PostsScreenState extends State<PostsScreen> {
+  late Future<List<Post>> _futurePosts;
+
+  Future<List<Post>> _fetchPosts() async {
+    final response = await http.get(
+      Uri.parse('https://jsonplaceholder.typicode.com/posts'),
+    );
+
+    await Future.delayed(Duration(milliseconds: 500)); // Simulojmë ngarkim
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      return data.map((json) => Post.fromJson(json)).toList();
+    } else {
+      throw Exception('Dështoi në marrjen e postimeve: ${response.statusCode}');
+    }
+  }
+
+  // Metodë për të simuluar gabim (për testim)
+  Future<List<Post>> _fetchPostsWithError() async {
+    await Future.delayed(Duration(seconds: 1));
+    throw Exception('Gabim i simuluar: Serveri nuk u gjet');
+  }
+
+  void _refreshData({bool useError = false}) {
+    setState(() {
+      _futurePosts = useError ? _fetchPostsWithError() : _fetchPosts();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _futurePosts = _fetchPosts();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Lista e Postimeve'),
+        backgroundColor: Colors.blue,
+        actions: [
+          // Butoni Refresh
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () => _refreshData(),
+            tooltip: 'Rifresko',
+          ),
+          // Butoni për testim të gabimit (në mënyrë demo)
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'error') {
+                _refreshData(useError: true);
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem(
+                value: 'error',
+                child: Row(
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.red),
+                    SizedBox(width: 8),
+                    Text('Simulo Gabim (Test)'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      body: FutureBuilder<List<Post>>(
+        future: _futurePosts,
+        builder: (context, snapshot) {
+          // Gjendja e loading
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return _buildLoadingState();
+          }
+
+          // Gjendja e gabimit
+          if (snapshot.hasError) {
+            // Shfaq SnackBar për gabim
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Gabim: ${snapshot.error}'),
+                  backgroundColor: Colors.red,
+                  duration: Duration(seconds: 5),
+                  action: SnackBarAction(
+                    label: 'PROVO SËRISH',
+                    textColor: Colors.white,
+                    onPressed: () => _refreshData(),
+                  ),
+                ),
+              );
+            });
+
+            return _buildErrorState(snapshot.error.toString());
+          }
+
+          // Gjendja e suksesit - shfaq të dhënat
+          final posts = snapshot.data!;
+          return _buildPostsList(posts);
+        },
+      ),
+      // Floating Action Button për rifreskim
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _refreshData(),
+        child: Icon(Icons.refresh),
+        backgroundColor: Colors.blue,
+        tooltip: 'Rifresko listën',
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(
+            strokeWidth: 3,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+          ),
+          SizedBox(height: 20),
+          Text(
+            'Duke ngarkuar postimet...',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Ju lutem prisni',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[500],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState(String error) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Colors.red,
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Ndodhi një gabim',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
+            ),
+            SizedBox(height: 16),
+            Text(
+              error,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[700],
+              ),
+            ),
+            SizedBox(height: 30),
+            ElevatedButton.icon(
+              onPressed: () => _refreshData(),
+              icon: Icon(Icons.refresh),
+              label: Text('Provo Sërish'),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
+            SizedBox(height: 10),
+            TextButton(
+              onPressed: () {
+                // Mundësi për të kthyer në API-n reale
+                _refreshData(useError: false);
+              },
+              child: Text('Kthehu në versionin normal'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPostsList(List<Post> posts) {
+    return Column(
+      children: [
+        // Header me numrin e postimeve
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(16),
+          color: Colors.blue[50],
+          child: Text(
+            'Gjithsej ${posts.length} postime',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue[800],
+            ),
+          ),
+        ),
+        // Lista e postimeve
+        Expanded(
+          child: ListView.builder(
+            itemCount: posts.length,
+            itemBuilder: (context, index) {
+              final post = posts[index];
+              return Card(
+                margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                elevation: 2,
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: _getColorForIndex(index),
+                    child: Text(
+                      '${index + 1}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    post.title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 4),
+                      Text(
+                        'Post ID: ${post.id} | User ID: ${post.userId}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                  trailing: Icon(
+                    Icons.arrow_forward_ios,
+                    size: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Color _getColorForIndex(int index) {
+    final colors = [
+      Colors.blue,
+      Colors.green,
+      Colors.orange,
+      Colors.purple,
+      Colors.red,
+      Colors.teal,
+    ];
+    return colors[index % colors.length];
+  }
+}
