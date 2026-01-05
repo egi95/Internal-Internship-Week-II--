@@ -1,0 +1,21 @@
+body { font-family: 'Segoe UI', sans-serif; padding: 40px; background: #f4f7f6; }
+.top-bar { display: flex; gap: 10px; margin-bottom: 30px; }
+#search-bar { flex-grow: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+
+/* Dizajni i session card */
+.session-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 15px;
+}
+
+/* Butonat */
+.btn-primary, .btn-enter { background: #007bff; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; }
+.btn-cancel { background: #6c757d; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; }
+.button-group { margin-top: 25px; display: flex; gap: 10px; }
+
+form label { display: block; margin-top: 15px; font-weight: 600; }
+input { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; }
+.time-row { display: flex; align-items: center; gap: 10px; }
