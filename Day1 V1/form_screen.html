@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Study Session</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <section class="form-container">
+        <h1>Create New Session</h1>
+        <form id="study-form">
+            <label>1. Enter your name</label>
+            <input type="text" id="user-name" required>
+
+            <label>2. Enter Field of Study</label>
+            <input type="text" id="study-field" required>
+
+            <label>3. Enter Start and End Time</label>
+            <div class="time-row">
+                <input type="time" id="start-time" required>
+                <span>to</span>
+                <input type="time" id="end-time" required>
+            </div>
+
+            <label>4. Enter Date</label>
+            <input type="date" id="study-date" required>
+
+            <div class="button-group">
+                <a href="index.html" class="btn-cancel">Cancel</a>
+                <button type="submit" class="btn-enter">Enter</button>
+            </div>
+        </form>
+    </section>
+
+    <script src="form.js"></script>
+</body>
+</html>
